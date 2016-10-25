@@ -1,0 +1,13 @@
+CommonBehavior.Endpoints=tcp -p 11000
+
+# Endpoints for subscriptions
+RCISMousePickerTopic.Endpoints=tcp -p 10100
+
+# Proxies for required interfaces
+DifferentialRobotProxy = differentialrobot:tcp  -p 10004
+LaserProxy = laser:tcp  -p 10003
+
+# This property is used by the clients to connect to IceStorm.
+TopicManager.Proxy=IceStorm/TopicManager:default -p 9999
+
+
