@@ -31,37 +31,33 @@
 #include <qmat/QMatAll>
 class SpecificWorker : public GenericWorker
 {
-
-
-struct Target{
+    struct Target{      
+        bool active = false;
+        mutable QMutex m;
+        QVec pose=QVec(3);
+      
+        void setActive(bool v){
+	  QMutexLocker lm(&m);
+	  active = v;
+	}
+      
+	bool isActive(){  
+	  return active;
+	}
+      
+	void copy(float x, float z){
+	  QMutexLocker lm(&m);
+	  pose.setItem(0,x);
+	  pose.setItem(1,0);
+	  pose.setItem(2,z);    
+	}
   
-  bool active = false;
-  mutable QMutex m;
-  QVec pose=QVec(3);
+	QVec getPose(){
+	  QMutexLocker lm (&m);
+	  return pose;      
+	}
+    };
   
-  void setActive(bool v){
-    QMutexLocker lm(&m);
-    active = v;
-  }
-  
-  bool isActive(){
-  
-     return active;
-  }
-  
-  void copy(float x, float z){
-    QMutexLocker lm(&m);
-    pose.setItem(0,x);
-    pose.setItem(1,0);
-    pose.setItem(2,z);
-    
-  }
-  
-  QVec getPose(){
-      QMutexLocker lm (&m);
-      return pose;      
-  }
-};
 Q_OBJECT  
 public:
   SpecificWorker(MapPrx& mprx);	
@@ -69,20 +65,22 @@ public:
 	bool setParams(RoboCompCommonBehavior::ParameterList params);
 	void setPick(const Pick &myPick);
 	InnerModel *innermodel;
-	void goTo();
-	void bug();
-	bool obstacle();
-	bool targetAtSight();
+	void gotoTarjet(const TLaserData &laserData);
+	void bug(const TLaserData &laserData);
+	bool obstacle(const TLaserData& laserData);
+	bool targetAtSight(const TLaserData &laserData);
+	void end();
 	
 public slots:
 	void compute(); 	
-	
-	
+		
 private:
   Target t;	
   bool objetivo=false;
+  
+  enum class State{BUG, INIT, GOTO, END};
+  State state;
+  bool obstable;
 };
-
   
 #endif
-
